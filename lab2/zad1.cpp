@@ -20,8 +20,6 @@ int main( int argc, char** argv ) {
         cerr << "error opening frames source" << endl;
         return -1;
     }
-    cout << "Video size: " << cap.get( CAP_PROP_FRAME_WIDTH ) 
-    << "x" << cap.get( CAP_PROP_FRAME_HEIGHT ) << endl;
 
     namedWindow("hsv", WINDOW_AUTOSIZE);
     
@@ -29,7 +27,6 @@ int main( int argc, char** argv ) {
     const int max_value = 255;
     int low_H = 0, low_S = 0, low_V = 0;
     int high_H = max_value_H, high_S = max_value, high_V = max_value;
-
     
     createTrackbar("Low H", "hsv", &low_H, 255);
     createTrackbar("High H", "hsv", &high_H, 255);
@@ -38,18 +35,20 @@ int main( int argc, char** argv ) {
     createTrackbar("Low V", "hsv", &low_V, 255);
     createTrackbar("High V", "hsv", &high_V, 255);
     
+    Mat frame, hsv, acid;
 
-    Mat frame, hsv;
-    if ( cap.read( frame ) ) {
+    do {
+        if ( cap.read( frame ) ) {
 
-        resize(frame, frame, Size(width, height));
-        GaussianBlur(frame, frame, Size(7,7), 0);
-        //putText(hsv, to_string(range), {10, 30}, FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
-        
-        do {
+            resize(frame, frame, Size(width, height));
+            GaussianBlur(frame, frame, Size(7,7), 0);
+            //putText(hsv, to_string(range), {10, 30}, FONT_HERSHEY_PLAIN, 1.0, {0, 255, 0, 255});
+            
             cvtColor(frame, hsv, COLOR_BGR2HSV);
+            cvtColor(frame, acid, COLOR_BGR2HSV);
             inRange(hsv, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), hsv);
             imshow( "Gaussian Blur", frame );
+            imshow( "hsv colors", acid);
             imshow( "hsv", hsv );
 
             char k = waitKey(5);
@@ -63,8 +62,8 @@ int main( int argc, char** argv ) {
                 cv::imwrite("roi.bmp", roi);
             }
 
-            } while (true);
-    }
+        }
+    } while (true);
     
     return 0;
 }
